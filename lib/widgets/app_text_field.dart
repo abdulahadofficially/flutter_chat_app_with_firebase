@@ -7,15 +7,20 @@ class AppTextField extends StatelessWidget {
     super.key,
     required this.hintText,
     required this.inputType,
+    this.validator,
+    this.controller,
   });
   final String hintText;
   final TextInputType inputType;
+  final String? Function(String?)? validator;
+  final TextEditingController? controller;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
-      child: TextField(
+      child: TextFormField(
+        controller: controller,
         style: AppConst.kBodyText.copyWith(color: Colors.white),
         keyboardType: inputType,
         textInputAction: TextInputAction.next,
@@ -37,7 +42,22 @@ class AppTextField extends StatelessWidget {
             ),
             borderRadius: BorderRadius.circular(18),
           ),
+          errorBorder: OutlineInputBorder(
+            borderSide: const BorderSide(
+              color: Colors.red,
+              width: 1,
+            ),
+            borderRadius: BorderRadius.circular(18),
+          ),
+          border: OutlineInputBorder(
+            borderSide: const BorderSide(
+              color: Colors.red,
+              width: 1,
+            ),
+            borderRadius: BorderRadius.circular(18),
+          ),
         ),
+        validator: validator,
       ),
     );
   }

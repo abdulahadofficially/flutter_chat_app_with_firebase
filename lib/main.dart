@@ -1,15 +1,17 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_app_with_firebase/pages/welocome_page/welcome_page.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'constants/app_const.dart';
+import 'package:get/get.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'routes.dart';
+import 'theme/app_theme.dart';
 
-void main() async{
+void main() async {
   await setup();
   runApp(const MyApp());
 }
 
-Future<void> setup() async{
+Future<void> setup() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 }
@@ -19,16 +21,36 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Sign In Sign Up Ui',
-      theme: ThemeData(
-        textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
-        scaffoldBackgroundColor: AppConst.kBackgroundColor,
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+      title: 'Flutter Chat App with Firebase',
+      theme: appTheme(context),
+      getPages: AppRoutes.routes,
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Scaffold(
+              body: Center(
+                child: LoadingAnimationWidget.progressiveDots(
+                  color: const Color(0xFF1A1A3F),
+                  size: 50,
+                ),
+              ),
+            );
+          }
+
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (snapshot.hasData) {
+              Get.offAllNamed(AppRoutes.chatUserPage);
+            } else {
+              Get.offAllNamed(AppRoutes.welocomePage);
+            }
+          });
+
+          return const SizedBox();
+        },
       ),
-      home: WelcomePage(),
     );
   }
 }

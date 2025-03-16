@@ -1,11 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_app_with_firebase/controllers/auth_controllers.dart';
 import 'package:flutter_chat_app_with_firebase/pages/auth_page/register_page.dart';
+import 'package:flutter_chat_app_with_firebase/routes.dart';
+import 'package:flutter_chat_app_with_firebase/utils/app_toast.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 import '../../constants/app_const.dart';
 import '../../widgets/widget.dart';
 
-class SignInPage extends StatelessWidget {
+class SignInPage extends GetView<AuthController> {
   const SignInPage({super.key});
 
   @override
@@ -33,90 +37,110 @@ class SignInPage extends StatelessWidget {
               hasScrollBody: false,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(
-                      fit: FlexFit.loose,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                child: Form(
+                  key: controller.loginKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        fit: FlexFit.loose,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Welcome back.",
+                              style: AppConst.kHeadline,
+                            ),
+                            const SizedBox(height: 10),
+                            const Text(
+                              "You've been missed!",
+                              style: AppConst.kBodyText2,
+                            ),
+                            const SizedBox(height: 60),
+                            AppTextField(
+                              controller: controller.emailController,
+                              hintText: 'Email',
+                              inputType: TextInputType.text,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Email cannot be empty';
+                                } else if (!AppConst.emailRegExp
+                                    .hasMatch(value)) {
+                                  return 'Enter a valid email format (e.g. example@mail.com)';
+                                }
+                                return null;
+                              },
+                            ),
+                            PasswordField(controller: controller),
+                          ],
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const Text(
-                            "Welcome back.",
-                            style: AppConst.kHeadline,
+                            "Don't have an account? ",
+                            style: AppConst.kBodyText,
                           ),
-                          const SizedBox(height: 10),
-                          const Text(
-                            "You've been missed!",
-                            style: AppConst.kBodyText2,
-                          ),
-                          const SizedBox(height: 60),
-                          const AppTextField(
-                            hintText: 'Phone, email or username',
-                            inputType: TextInputType.text,
-                          ),
-                          const _PasswordField(),
+                          GestureDetector(
+                            onTap: () => Get.toNamed(AppRoutes.register),
+                            child: Text(
+                              'Register',
+                              style: AppConst.kBodyText.copyWith(
+                                color: Colors.white,
+                              ),
+                            ),
+                          )
                         ],
                       ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          "Don't have an account? ",
-                          style: AppConst.kBodyText,
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              CupertinoPageRoute(
-                                builder: (context) => const RegisterPage(),
-                              ),
-                            );
-                          },
-                          child: Text(
-                            'Register',
-                            style: AppConst.kBodyText.copyWith(
-                              color: Colors.white,
-                            ),
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Obx(
+                          () => AppTextButton(
+                            isLoading: controller.isLoading.value,
+                            buttonName: 'Sign In',
+                            onTap: () async => await controller.login(),
+                            bgColor: Colors.white,
+                            textColor: Colors.black87,
                           ),
-                        )
-                      ],
-                    ),
-                  ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(18.0),
-        child: AppTextButton(
-          buttonName: 'Sign In',
-          onTap: () {},
-          bgColor: Colors.white,
-          textColor: Colors.black87,
-        ),
-      ),
     );
   }
 }
 
-class _PasswordField extends StatefulWidget {
-  const _PasswordField();
+class PasswordField extends StatefulWidget {
+  const PasswordField({super.key, required this.controller});
+
+  final AuthController controller;
 
   @override
-  __PasswordFieldState createState() => __PasswordFieldState();
+  _PasswordFieldState createState() => _PasswordFieldState();
 }
 
-class __PasswordFieldState extends State<_PasswordField> {
+class _PasswordFieldState extends State<PasswordField> {
   bool isPasswordVisible = true;
 
   @override
   Widget build(BuildContext context) {
     return AppPasswordField(
+      controller: widget.controller.passwordController,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Email cannot be empty';
+        } else if (!AppConst.passwordRegExp.hasMatch(value)) {
+          return 'Password must be 8+ chars with uppercase, number & symbol.';
+        }
+        return null;
+      },
       isPasswordVisible: isPasswordVisible,
       onTap: () {
         setState(() {

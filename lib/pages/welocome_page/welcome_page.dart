@@ -1,11 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_app_with_firebase/routes.dart';
+import 'package:get/get.dart';
 import '../../constants/app_const.dart';
 import '../../widgets/widget.dart';
 import '../auth_page/register_page.dart';
 import '../auth_page/signin_page.dart';
 
 class WelcomePage extends StatelessWidget {
+  const WelcomePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,8 +71,7 @@ class WelcomePage extends StatelessWidget {
                   bgColor: Colors.white,
                   buttonName: 'Register',
                   onTap: () {
-                    Navigator.push(context,
-                        CupertinoPageRoute(builder: (context) => RegisterPage()));
+                    Get.toNamed(AppRoutes.register);
                   },
                   textColor: Colors.black87,
                 ),
@@ -78,11 +81,7 @@ class WelcomePage extends StatelessWidget {
                   bgColor: Colors.transparent,
                   buttonName: 'Sign In',
                   onTap: () {
-                    Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                          builder: (context) => SignInPage(),
-                        ));
+                    Get.toNamed(AppRoutes.signIn);
                   },
                   textColor: Colors.white,
                 ),
